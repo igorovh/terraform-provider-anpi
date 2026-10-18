@@ -1,0 +1,9 @@
+local-test/
+.terraform/
+terraform.tfstate
+terraform.tfstate.*
+*.tfvars
+*.tfvars.json
+crash.log
+.DS_Store
+bin/
