@@ -2,7 +2,7 @@
 
 Terraform provider for [anpi](https://github.com/igorovh/anpi), a small self-hosted uptime monitor. It manages monitors, groups, notification channels and maintenance windows through the anpi REST API, so the whole monitoring setup can live in Git.
 
-Needs anpi with the REST API (`/api/v1`), the first release after 0.2.2.
+Needs anpi 0.3.0 or newer, which added the REST API (`/api/v1`).
 
 ## Quick start
 
