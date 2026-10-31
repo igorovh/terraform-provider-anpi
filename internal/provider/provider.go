@@ -100,6 +100,7 @@ func (p *anpiProvider) Resources(_ context.Context) []func() resource.Resource {
 		NewGroupResource,
 		NewNotificationChannelResource,
 		NewMaintenanceResource,
+		NewSSOResource,
 	}
 }
 

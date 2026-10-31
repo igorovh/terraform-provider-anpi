@@ -106,6 +106,30 @@ func (c *Client) Info(ctx context.Context) (*Info, error) {
 	return &out, c.do(ctx, http.MethodGet, "/info", nil, &out)
 }
 
+type SSO struct {
+	Enabled      bool   `json:"enabled"`
+	BaseURL      string `json:"base_url"`
+	Issuer       string `json:"issuer"`
+	ClientID     string `json:"client_id"`
+	ClientSecret string `json:"client_secret"`
+	RequiredRole string `json:"required_role"`
+	Scopes       string `json:"scopes"`
+}
+
+func (c *Client) GetSSO(ctx context.Context) (*SSO, error) {
+	var out SSO
+	return &out, c.do(ctx, http.MethodGet, "/sso", nil, &out)
+}
+
+func (c *Client) PutSSO(ctx context.Context, s *SSO) (*SSO, error) {
+	var out SSO
+	return &out, c.do(ctx, http.MethodPut, "/sso", s, &out)
+}
+
+func (c *Client) DeleteSSO(ctx context.Context) error {
+	return c.do(ctx, http.MethodDelete, "/sso", nil, nil)
+}
+
 // Monitor is both the request and the response; read-only fields are ignored by the server.
 type Monitor struct {
 	ID               int64   `json:"id,omitempty"`

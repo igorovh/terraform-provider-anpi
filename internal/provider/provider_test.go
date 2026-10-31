@@ -3,6 +3,8 @@ package provider
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"regexp"
 	"testing"
@@ -134,6 +136,39 @@ func TestAccFullConfiguration(t *testing.T) {
 					resource.TestCheckResourceAttr("anpi_maintenance.upgrade", "title", "Upgrade v2"),
 				),
 			},
+		},
+	})
+}
+
+func TestAccSSO(t *testing.T) {
+	var issuer string
+	idp := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(w, `{"issuer":%q,"authorization_endpoint":%q,"token_endpoint":%q}`, issuer, issuer+"/auth", issuer+"/token")
+	}))
+	defer idp.Close()
+	issuer = idp.URL
+	configuration := func(role string) string {
+		return fmt.Sprintf(`resource "anpi_sso" "test" {
+  enabled = true
+  base_url = "http://localhost:3917"
+  issuer = %q
+  client_id = "anpi"
+  client_secret = "test-secret"
+  required_role = %q
+}`, issuer, role)
+	}
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { preCheck(t) },
+		ProtoV6ProviderFactories: testProviders,
+		Steps: []resource.TestStep{
+			{Config: configuration("admin"), Check: resource.ComposeAggregateTestCheckFunc(
+				resource.TestCheckResourceAttr("anpi_sso.test", "enabled", "true"),
+				resource.TestCheckResourceAttr("anpi_sso.test", "client_secret", "test-secret"),
+				resource.TestCheckResourceAttr("anpi_sso.test", "required_role", "admin"),
+			)},
+			{ResourceName: "anpi_sso.test", ImportState: true, ImportStateId: "anything", ImportStateVerify: true},
+			{Config: configuration("operator"), Check: resource.TestCheckResourceAttr("anpi_sso.test", "required_role", "operator")},
 		},
 	})
 }

@@ -4,6 +4,8 @@ Terraform provider for [anpi](https://github.com/igorovh/anpi), a small self-hos
 
 Needs anpi 0.3.0 or newer, which added the REST API (`/api/v1`).
 
+The `anpi_sso` resource requires anpi 0.4.0 and a token created with **Allow SSO changes** or `anpi api-token terraform --allow-sso`. This permission grants control over panel sign-in and access to the SSO client secret.
+
 ## Quick start
 
 1. In anpi, open **Settings → API tokens** and create a token, or run `anpi api-token terraform` on the server. The token is shown once.
@@ -14,7 +16,7 @@ terraform {
   required_providers {
     anpi = {
       source  = "igorovh/anpi"
-      version = "~> 0.1"
+      version = "~> 0.2"
     }
   }
 }
@@ -56,6 +58,7 @@ See [`examples/basic`](examples/basic/main.tf) for sub-monitors, push monitors, 
 | [`anpi_group`](docs/resources/group.md) | Sections of the dashboard and the status page |
 | [`anpi_notification_channel`](docs/resources/notification_channel.md) | Discord, Telegram, ntfy, e-mail and webhook alerts |
 | [`anpi_maintenance`](docs/resources/maintenance.md) | Maintenance windows |
+| [`anpi_sso`](docs/resources/sso.md) | Instance SSO configuration |
 
 Existing objects can be imported by the numeric ID from the panel URL, e.g. `terraform import anpi_monitor.api 12`.
 
@@ -65,7 +68,7 @@ Existing objects can be imported by the numeric ID from the panel URL, e.g. `ter
 - Changes made in the panel show up as drift in the next `terraform plan`.
 - `anpi_monitor.channel_ids` is explicit: channels marked as default in the panel are not added to monitors created by Terraform.
 - Each monitor kind uses only some settings. The provider rejects settings the server would ignore, for example `port` on an `http` monitor, so the plan stays clean.
-- State contains secrets: channel webhook URLs, tokens and SMTP passwords, and push tokens. Keep the state private.
+- State contains secrets: channel webhook URLs, tokens and SMTP passwords, push tokens, and SSO client secrets. Keep the state private.
 - Group order and sort order between monitors are not managed; drag monitors in the panel if you need a specific order.
 
 ## Development
@@ -80,7 +83,7 @@ Acceptance tests create and delete real objects, so run them against a throwaway
 
 ```sh
 export ANPI_DATA_DIR=$(mktemp -d) ANPI_BIND=127.0.0.1:3917
-anpi api-token acc > token && anpi &      # from the anpi repository: cargo run -- api-token acc
+anpi api-token acc --allow-sso > token && anpi &
 ANPI_URL=http://127.0.0.1:3917 ANPI_TOKEN=$(cat token) make testacc
 ```
 
