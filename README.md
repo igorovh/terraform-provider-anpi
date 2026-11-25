@@ -1,10 +1,12 @@
 # terraform-provider-anpi
 
-Terraform provider for [anpi](https://github.com/igorovh/anpi), a small self-hosted uptime monitor. It manages monitors, groups, notification channels and maintenance windows through the anpi REST API, so the whole monitoring setup can live in Git.
+Terraform provider for [anpi](https://github.com/igorovh/anpi), a small self-hosted uptime monitor. It manages monitors, groups, notification channels, maintenance windows, SSO and branding through the anpi REST API, so the whole monitoring setup can live in Git.
 
 Needs anpi 0.3.0 or newer, which added the REST API (`/api/v1`).
 
 The `anpi_sso` resource requires anpi 0.4.0 and a token created with **Allow SSO changes** or `anpi api-token terraform --allow-sso`. This permission grants control over panel sign-in and access to the SSO client secret.
+
+The `anpi_branding` resource requires anpi 0.5.0.
 
 ## Quick start
 
@@ -16,7 +18,7 @@ terraform {
   required_providers {
     anpi = {
       source  = "igorovh/anpi"
-      version = "~> 0.2"
+      version = "~> 0.3"
     }
   }
 }
@@ -59,6 +61,7 @@ See [`examples/basic`](examples/basic/main.tf) for sub-monitors, push monitors, 
 | [`anpi_notification_channel`](docs/resources/notification_channel.md) | Discord, Telegram, ntfy, e-mail and webhook alerts |
 | [`anpi_maintenance`](docs/resources/maintenance.md) | Maintenance windows |
 | [`anpi_sso`](docs/resources/sso.md) | Instance SSO configuration |
+| [`anpi_branding`](docs/resources/branding.md) | Names, logo, favicon, theme and custom CSS ([example](examples/branding/main.tf)) |
 
 Existing objects can be imported by the numeric ID from the panel URL, e.g. `terraform import anpi_monitor.api 12`.
 

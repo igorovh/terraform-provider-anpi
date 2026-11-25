@@ -173,6 +173,53 @@ func TestAccSSO(t *testing.T) {
 	})
 }
 
+func TestTrimmedKeepsConfiguredSpelling(t *testing.T) {
+	if got := trimmed(types.StringValue("a {\r\n}\r\n"), "a {\n}"); got.ValueString() != "a {\r\n}\r\n" {
+		t.Fatalf("CRLF from a Windows checkout became drift: %q", got.ValueString())
+	}
+	logo := "QUJD"
+	if got := sameImage(types.StringValue("QU\nJD\n"), &logo); got.ValueString() != "QU\nJD\n" {
+		t.Fatalf("wrapped base64 became drift: %q", got.ValueString())
+	}
+	if got := sameImage(types.StringValue("QUJD"), nil); !got.IsNull() {
+		t.Fatalf("an image removed in the panel must show as drift")
+	}
+	if got := trimmed(types.StringNull(), "x"); got.ValueString() != "x" {
+		t.Fatalf("import must take the server value: %q", got.ValueString())
+	}
+}
+
+func TestAccBranding(t *testing.T) {
+	// A 1x1 transparent PNG.
+	const png = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
+	configuration := func(theme, favicon string) string {
+		return fmt.Sprintf(`resource "anpi_branding" "test" {
+  site_name       = "ACME"
+  default_theme   = %q
+  show_powered_by = false
+  custom_css      = ":root[data-theme=\"dark\"] { --bg: #000; }\n"
+  logo            = %q
+  favicon         = %s
+}`, theme, png, favicon)
+	}
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { preCheck(t) },
+		ProtoV6ProviderFactories: testProviders,
+		Steps: []resource.TestStep{
+			{Config: configuration("dark", fmt.Sprintf("%q", png)), Check: resource.ComposeAggregateTestCheckFunc(
+				resource.TestCheckResourceAttr("anpi_branding.test", "site_name", "ACME"),
+				resource.TestCheckResourceAttr("anpi_branding.test", "status_title", "Service status"),
+				resource.TestCheckResourceAttr("anpi_branding.test", "favicon", png),
+			)},
+			{ResourceName: "anpi_branding.test", ImportState: true, ImportStateId: "branding", ImportStateVerify: true, ImportStateVerifyIgnore: []string{"custom_css"}},
+			{Config: configuration("light", "null"), Check: resource.ComposeAggregateTestCheckFunc(
+				resource.TestCheckResourceAttr("anpi_branding.test", "default_theme", "light"),
+				resource.TestCheckNoResourceAttr("anpi_branding.test", "favicon"),
+			)},
+		},
+	})
+}
+
 func TestAccSettingsOfOtherKindsAreRejected(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { preCheck(t) },

@@ -1,0 +1,18 @@
+:root[data-theme="dark"] {
+  --bg: #0b1020;
+  --panel: #111833;
+  --raised: #18204a;
+  --line: #222b55;
+  --up: #4ade80;
+}
+
+:root[data-theme="light"] {
+  --bg: #f7f8fc;
+  --panel: #ffffff;
+  --up: #15803d;
+}
+
+.brand-name {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}

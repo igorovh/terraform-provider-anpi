@@ -2,7 +2,7 @@
 
 ## Repo Shape
 - Go Terraform provider (terraform-plugin-framework). Entrypoint `main.go`, address `registry.terraform.io/igorovh/anpi`, type `anpi`; the GitHub repo must be named `terraform-provider-anpi` for the Registry.
-- `internal/client` is the HTTP client for the anpi REST API (`/api/v1`, bearer token); `internal/provider` holds the provider and the four resources: `anpi_monitor`, `anpi_group`, `anpi_notification_channel`, `anpi_maintenance`. No data sources.
+- `internal/client` is the HTTP client for the anpi REST API (`/api/v1`, bearer token); `internal/provider` holds the provider and the resources: `anpi_monitor`, `anpi_group`, `anpi_notification_channel`, `anpi_maintenance` and the singletons `anpi_sso`, `anpi_branding`. No data sources.
 - The API lives in the anpi repo (`src/web/api.rs`, documented in `docs/api.md`). Keep field names and defaults in sync with it.
 - Docs are handwritten in `README.md` and `docs/`; `make docs` only prints a reminder.
 

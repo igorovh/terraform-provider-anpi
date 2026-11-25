@@ -130,6 +130,32 @@ func (c *Client) DeleteSSO(ctx context.Context) error {
 	return c.do(ctx, http.MethodDelete, "/sso", nil, nil)
 }
 
+// Branding images are base64; nil removes the image.
+type Branding struct {
+	SiteName          string  `json:"site_name"`
+	StatusTitle       string  `json:"status_title"`
+	StatusDescription string  `json:"status_description"`
+	DefaultTheme      string  `json:"default_theme"`
+	ShowPoweredBy     bool    `json:"show_powered_by"`
+	CustomCSS         string  `json:"custom_css"`
+	Logo              *string `json:"logo"`
+	Favicon           *string `json:"favicon"`
+}
+
+func (c *Client) GetBranding(ctx context.Context) (*Branding, error) {
+	var out Branding
+	return &out, c.do(ctx, http.MethodGet, "/branding", nil, &out)
+}
+
+func (c *Client) PutBranding(ctx context.Context, b *Branding) (*Branding, error) {
+	var out Branding
+	return &out, c.do(ctx, http.MethodPut, "/branding", b, &out)
+}
+
+func (c *Client) DeleteBranding(ctx context.Context) error {
+	return c.do(ctx, http.MethodDelete, "/branding", nil, nil)
+}
+
 // Monitor is both the request and the response; read-only fields are ignored by the server.
 type Monitor struct {
 	ID               int64   `json:"id,omitempty"`

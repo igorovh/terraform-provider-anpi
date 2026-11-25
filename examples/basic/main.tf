@@ -2,7 +2,7 @@ terraform {
   required_providers {
     anpi = {
       source  = "igorovh/anpi"
-      version = "~> 0.2"
+      version = "~> 0.3"
     }
   }
 }
